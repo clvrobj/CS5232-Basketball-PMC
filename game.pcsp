@@ -1,0 +1,45 @@
+// Positions on the court
+#define L1 1;  // Left, inside 3-point line
+#define M1 2;  // Middle, inside 3-point line
+#define R1 3;  // Right, inside 3-point line
+#define L2 4;  // Left, outside 3-point line
+#define M2 5;  // Middle, outside 3-point line
+#define R2 6;  // Right, outside 3-point line
+
+// Actions a player can take
+enum {Pass, Shoot};
+
+// Positions of players on the court
+// 1 means there is a player in that position
+// 0 means there is no player in that position
+var pos = [0, 0, 0, 0, 0, 0];
+
+// Player processes
+// Each player can either pass the ball or shoot
+// The probability of each action succeeding depends on the player's skills
+PointGuard = [pos[L1] == 1]Player(80, 70, L1) [] [pos[M1] == 1]Player(80, 70, M1) [] [pos[R1] == 1]Player(80, 70, R1);
+ShootingGuard = [pos[L2] == 1]Player(75, 85, L2) [] [pos[M2] == 1]Player(75, 85, M2) [] [pos[R2] == 1]Player(75, 85, R2);
+SmallForward = [pos[L1] == 1]Player(70, 80, L1) [] [pos[M1] == 1]Player(70, 80, M1) [] [pos[R1] == 1]Player(70, 80, R1);
+PowerForward = [pos[L2] == 1]Player(85, 75, L2) [] [pos[M2] == 1]Player(85, 75, M2) [] [pos[R2] == 1]Player(85, 75, R2);
+Center = [pos[M1] == 1]Player(90, 60, M1);
+
+// Player process definition
+// A player can either pass the ball or shoot
+// The probability of each action succeeding is given by the parameters i and j
+Player(i, j, p) = Pass -> pcase {
+    i: pass -> UpdatePos(p, Pass); Skip
+    100-i: intercepted -> Skip
+} [] Shoot -> pcase {
+    j: shoot -> UpdatePos(p, Shoot); Skip
+    100-j: missed -> Skip
+};
+
+// Update the positions of players on the court after an action
+UpdatePos(p, e) = case {
+    p == L1: {pos[L1] = 0; pos[M1] = 1; pos[R1] = 0; pos[L2] = 1; pos[M2] = 0; pos[R2] = 0;} -> Skip
+    p == M1: {pos[L1] = 1; pos[M1] = 0; pos[R1] = 1; pos[L2] = 0; pos[M2] = 1; pos[R2] = 0;} -> Skip
+    p == R1: {pos[L1] = 0; pos[M1] = 1; pos[R1] = 0; pos[L2] = 0; pos[M2] = 0; pos[R2] = 1;} -> Skip
+    p == L2: {pos[L1] = 1; pos[M1] = 0; pos[R1] = 0; pos[L2] = 0; pos[M2] = 1; pos[R2] = 0;} -> Skip
+    p == M2: {pos[L1] = 0; pos[M1] = 1; pos[R1] = 0; pos[L2] = 1; pos[M2] = 0; pos[R2] = 1;} -> Skip
+    p == R2: {pos[L1] = 0; pos[M1] = 0; pos[R1] = 1; pos[L2] = 0; pos[M2] = 1; pos[R2] = 0;} -> Skip
+};
