@@ -27,11 +27,11 @@ Center = [pos[M1] == 1]Player(90, 60, M1);
 // A player can either pass the ball or shoot
 // The probability of each action succeeding is given by the parameters i and j
 Player(i, j, p) = Pass -> pcase {
-    i: pass -> UpdatePos(p, Pass); Skip
-    100-i: intercepted -> Skip
+    i: {lastAction = Pass; lastPos = p; lastResult = Success;} -> pass -> UpdatePos(p, Pass); Skip
+    100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
 } [] Shoot -> pcase {
-    j: shoot -> UpdatePos(p, Shoot); Skip
-    100-j: missed -> Skip
+    j: {lastAction = Shoot; lastPos = p; lastResult = Success;} -> shoot -> UpdatePos(p, Shoot); Skip
+    100-j: {lastAction = Shoot; lastPos = p; lastResult = Failure;} -> missed -> Skip
 };
 
 // Update the positions of players on the court after an action
@@ -43,3 +43,18 @@ UpdatePos(p, e) = case {
     p == M2: {pos[L1] = 0; pos[M1] = 1; pos[R1] = 0; pos[L2] = 1; pos[M2] = 0; pos[R2] = 1;} -> Skip
     p == R2: {pos[L1] = 0; pos[M1] = 0; pos[R1] = 1; pos[L2] = 0; pos[M2] = 1; pos[R2] = 0;} -> Skip
 };
+
+// Define goals as successful shots from different areas of the court
+#define GoalL1 lastAction == Shoot && lastPos == L1 && lastResult == Success;
+#define GoalM1 lastAction == Shoot && lastPos == M1 && lastResult == Success;
+#define GoalR1 lastAction == Shoot && lastPos == R1 && lastResult == Success;
+#define GoalL2 lastAction == Shoot && lastPos == L2 && lastResult == Success;
+#define GoalM2 lastAction == Shoot && lastPos == M2 && lastResult == Success;
+#define GoalR2 lastAction == Shoot && lastPos == R2 && lastResult == Success;
+
+// Check that a shot is eventually successful from each position
+#assert PointGuard |= F G GoalL1 with prob;
+#assert ShootingGuard |= F G GoalL2 with prob;
+#assert SmallForward |= F G GoalM1 with prob;
+#assert PowerForward |= F G GoalM2 with prob;
+#assert Center |= F G GoalR1 with prob;
