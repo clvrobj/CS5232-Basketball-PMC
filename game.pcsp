@@ -9,6 +9,12 @@
 // Actions a player can take
 enum {Pass, Shoot};
 
+enum {Success, Failure};
+
+var lastAction = Pass;
+var lastPos = 0;
+var lastResult = Success;
+
 // Positions of players on the court
 // 1 means there is a player in that position
 // 0 means there is no player in that position
@@ -26,10 +32,10 @@ Center = [pos[M1] == 1]Player(90, 60, M1);
 // Player process definition
 // A player can either pass the ball or shoot
 // The probability of each action succeeding is given by the parameters i and j
-Player(i, j, p) = Pass -> pcase {
+Player(i, j, p) = playerPass -> pcase {
     i: {lastAction = Pass; lastPos = p; lastResult = Success;} -> pass -> UpdatePos(p, Pass); Skip
     100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
-} [] Shoot -> pcase {
+} [] playerShoot -> pcase {
     j: {lastAction = Shoot; lastPos = p; lastResult = Success;} -> shoot -> UpdatePos(p, Shoot); Skip
     100-j: {lastAction = Shoot; lastPos = p; lastResult = Failure;} -> missed -> Skip
 };
