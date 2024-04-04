@@ -1,10 +1,10 @@
 // Positions on the court
-#define L1 1;  // Left, inside 3-point line
-#define M1 2;  // Middle, inside 3-point line
-#define R1 3;  // Right, inside 3-point line
-#define L2 4;  // Left, outside 3-point line
-#define M2 5;  // Middle, outside 3-point line
-#define R2 6;  // Right, outside 3-point line
+#define L1 0;  // Left, inside 3-point line
+#define M1 1;  // Middle, inside 3-point line
+#define R1 2;  // Right, inside 3-point line
+#define L2 3;  // Left, outside 3-point line
+#define M2 4;  // Middle, outside 3-point line
+#define R2 5;  // Right, outside 3-point line
 
 // Actions a player can take
 enum {Pass, Shoot};
@@ -15,52 +15,104 @@ var lastAction = Pass;
 var lastPos = 0;
 var lastResult = Success;
 
-// Positions of players on the court
-// 1 means there is a player in that position
-// 0 means there is no player in that position
-var pos = [0, 0, 0, 0, 0, 0];
+// The court split into 6 areas that can receive the ball
+// 1 means the position eligible to receive the ball    
+// 0 means the position is not eligible to receive the ball
+var pos = [0, 0, 0, 1, 1, 1]; // Initial position of the ball is at the middle, outside the 3-point line, L2, M2, or R2
 
-// Player processes
-// Each player can either pass the ball or shoot
-// The probability of each action succeeding depends on the player's skills
-PointGuard = [pos[L1] == 1]Player(80, 70, L1) [] [pos[M1] == 1]Player(80, 70, M1) [] [pos[R1] == 1]Player(80, 70, R1);
-ShootingGuard = [pos[L2] == 1]Player(75, 85, L2) [] [pos[M2] == 1]Player(75, 85, M2) [] [pos[R2] == 1]Player(75, 85, R2);
-SmallForward = [pos[L1] == 1]Player(70, 80, L1) [] [pos[M1] == 1]Player(70, 80, M1) [] [pos[R1] == 1]Player(70, 80, R1);
-PowerForward = [pos[L2] == 1]Player(85, 75, L2) [] [pos[M2] == 1]Player(85, 75, M2) [] [pos[R2] == 1]Player(85, 75, R2);
-Center = [pos[M1] == 1]Player(90, 60, M1);
+// The player positions on the court
+// Each player can have a matrix of the court with 1s and 0s
+// 1 means the player is in that position
+// 0 means the player is not in that position
+var atkPointGuardPos = [0, 0, 0, 0, 1, 0]; // PointGuard at the middle, outside the 3-point line, M2
+var atkShootingGuardPos = [0, 0, 0, 0, 0, 1]; // ShootingGuard at the right, outside the 3-point line, R2
+var atkSmallForwardPos = [0, 0, 0, 1, 0, 0]; // SmallForward at the left, outside the 3-point line, L2
+var atkPowerForwardPos = [0, 0, 1, 0, 0, 0]; // PowerForward at the right, inside the 3-point line, R1
+var atkCenterPos = [0, 1, 0, 0, 0, 0]; // Center at the middle, inside the 3-point line, M1
 
-// Player process definition
-// A player can either pass the ball or shoot
-// The probability of each action succeeding is given by the parameters i and j
-Player(i, j, p) = playerPass -> pcase {
-    i: {lastAction = Pass; lastPos = p; lastResult = Success;} -> pass -> UpdatePos(p, Pass); Skip
+// Attacking team players positions
+// The attacking team can either pass the ball or shoot
+// Here 80, 70 represents the pass and score ratings for this particular player
+AtkPointGuard = [pos[M2] == 1]PointGuard(80, 70, M2) [] [pos[L2] == 1]PointGuard(80, 70, L2) [] [pos[R2] == 1]PointGuard(80, 70, R2);
+AtkShootingGuard = [pos[R2] == 1]ShootingGuard(75, 85, R2) [] [pos[M2] == 1]ShootingGuard(75, 85, M2) [] [pos[L2] == 1]ShootingGuard(75, 85, L2);
+AtkSmallForward = [pos[L2] == 1]SmallForward(70, 80, L2) [] [pos[M2] == 1]SmallForward(70, 80, M2) [] [pos[R2] == 1]SmallForward(70, 80, R2);
+AtkPowerForward = [pos[R1] == 1]PowerForward(85, 75, R1) [] [pos[L1] == 1]PowerForward(85, 75, L2) [] [pos[M1] == 1]PowerForward(85, 75, M2);
+AtkCenter = [pos[M1] == 1]Center(90, 60, M1);
+
+// Individual player processes
+// PointGuard only passes the ball to the PowerForward or Center who is inside the 3-point line
+// [TODO] Currently only moves the ball vertically from outside to inside. Need to add horizontal movement and backward movement.
+PointGuard(i, j, p) =  [atkPowerForwardPos[p - 3] == 1]playerPass -> pcase {
+    i: {lastAction = Pass; lastPos = p; lastResult = Success;} -> pass -> UpdatePos(p, Pass); AtkPowerForward
+    100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
+} [] [atkCenterPos[p - 3] == 1]playerPass -> pcase {
+    i: {lastAction = Pass; lastPos = p; lastResult = Success;} -> pass -> UpdatePos(p, Pass); AtkCenter
+    100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
+};
+
+// ShootingGuard can only pass the ball to the PowerForward or Center who is inside the 3-point line
+ShootingGuard(i, j, p) = [atkPowerForwardPos[p - 3] == 1]playerPass -> pcase {
+    i: {lastAction = Pass; lastPos = p; lastResult = Success;} -> pass -> UpdatePos(p, Pass); AtkPowerForward
+    100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
+} [] [atkCenterPos[p - 3] == 1]playerPass -> pcase {
+    i: {lastAction = Pass; lastPos = p; lastResult = Success;} -> pass -> UpdatePos(p, Pass); AtkCenter
+    100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
+};
+
+// SmallForward can pass the ball to the PowerForward or Center who is inside the 3-point line
+SmallForward(i, j, p) = [atkPowerForwardPos[p - 3] == 1]playerPass -> pcase {
+    i: {lastAction = Pass; lastPos = p; lastResult = Success;} -> pass -> UpdatePos(p, Pass); AtkPowerForward
+    100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
+} [] [atkCenterPos[p - 3] == 1]playerPass -> pcase {
+    i: {lastAction = Pass; lastPos = p; lastResult = Success;} -> pass -> UpdatePos(p, Pass); AtkCenter
+    100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
+};
+
+// AtkPowerForward can pass the ball to the Center or shoot
+PowerForward(i, j, p) = [atkCenterPos[p] == 1]playerPass -> pcase {
+    i: {lastAction = Pass; lastPos = p; lastResult = Success;} -> pass -> UpdatePos(p, Pass); AtkCenter
     100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
 } [] playerShoot -> pcase {
-    j: {lastAction = Shoot; lastPos = p; lastResult = Success;} -> shoot -> UpdatePos(p, Shoot); Skip
+    j: {lastAction = Shoot; lastPos = p; lastResult = Success;} -> shoot -> Skip
     100-j: {lastAction = Shoot; lastPos = p; lastResult = Failure;} -> missed -> Skip
 };
 
-// Update the positions of players on the court after an action
+// AtkCenter can only shoot
+Center(i, j, p) = playerShoot -> pcase {
+    i: {lastAction = Shoot; lastPos = p; lastResult = Success;} -> shoot -> Skip
+    100-i: {lastAction = Shoot; lastPos = p; lastResult = Failure;} -> missed -> Skip
+};
+
+// Update the eligible positions of receiving the ball on the court after an action
+// [TODO] Currently only moves the ball vertically from outside to inside. Need to add horizontal movement and backward movement.
 UpdatePos(p, e) = case {
-    p == L1: {pos[L1] = 0; pos[M1] = 1; pos[R1] = 0; pos[L2] = 1; pos[M2] = 0; pos[R2] = 0;} -> Skip
-    p == M1: {pos[L1] = 1; pos[M1] = 0; pos[R1] = 1; pos[L2] = 0; pos[M2] = 1; pos[R2] = 0;} -> Skip
-    p == R1: {pos[L1] = 0; pos[M1] = 1; pos[R1] = 0; pos[L2] = 0; pos[M2] = 0; pos[R2] = 1;} -> Skip
-    p == L2: {pos[L1] = 1; pos[M1] = 0; pos[R1] = 0; pos[L2] = 0; pos[M2] = 1; pos[R2] = 0;} -> Skip
-    p == M2: {pos[L1] = 0; pos[M1] = 1; pos[R1] = 0; pos[L2] = 1; pos[M2] = 0; pos[R2] = 1;} -> Skip
-    p == R2: {pos[L1] = 0; pos[M1] = 0; pos[R1] = 1; pos[L2] = 0; pos[M2] = 1; pos[R2] = 0;} -> Skip
+    p == L1: {pos[L1] = 0; pos[M1] = 0; pos[R1] = 0; pos[L2] = 0; pos[M2] = 0; pos[R2] = 0;} -> Skip
+    p == M1: {pos[L1] = 0; pos[M1] = 0; pos[R1] = 0; pos[L2] = 0; pos[M2] = 0; pos[R2] = 0;} -> Skip
+    p == R1: {pos[L1] = 0; pos[M1] = 0; pos[R1] = 0; pos[L2] = 0; pos[M2] = 1; pos[R2] = 0;} -> Skip
+    p == L2: {pos[L1] = 1; pos[M1] = 0; pos[R1] = 0; pos[L2] = 0; pos[M2] = 0; pos[R2] = 0;} -> Skip
+    p == M2: {pos[L1] = 0; pos[M1] = 1; pos[R1] = 0; pos[L2] = 0; pos[M2] = 0; pos[R2] = 0;} -> Skip
+    p == R2: {pos[L1] = 0; pos[M1] = 0; pos[R1] = 1; pos[L2] = 0; pos[M2] = 0; pos[R2] = 0;} -> Skip
 };
 
 // Define goals as successful shots from different areas of the court
-#define GoalL1 lastAction == Shoot && lastPos == L1 && lastResult == Success;
-#define GoalM1 lastAction == Shoot && lastPos == M1 && lastResult == Success;
-#define GoalR1 lastAction == Shoot && lastPos == R1 && lastResult == Success;
-#define GoalL2 lastAction == Shoot && lastPos == L2 && lastResult == Success;
-#define GoalM2 lastAction == Shoot && lastPos == M2 && lastResult == Success;
-#define GoalR2 lastAction == Shoot && lastPos == R2 && lastResult == Success;
+#define ScoreL1 lastAction == Shoot && lastPos == L1 && lastResult == Success;
+#define ScoreM1 lastAction == Shoot && lastPos == M1 && lastResult == Success;
+#define ScoreR1 lastAction == Shoot && lastPos == R1 && lastResult == Success;
+#define ScoreL2 lastAction == Shoot && lastPos == L2 && lastResult == Success;
+#define ScoreM2 lastAction == Shoot && lastPos == M2 && lastResult == Success;
+#define ScoreR2 lastAction == Shoot && lastPos == R2 && lastResult == Success;
+
+#assert AtkPointGuard deadlockfree;
 
 // Check that a shot is eventually successful from each position
-#assert PointGuard |= F G GoalL1 with prob;
-#assert ShootingGuard |= F G GoalL2 with prob;
-#assert SmallForward |= F G GoalM1 with prob;
-#assert PowerForward |= F G GoalM2 with prob;
-#assert Center |= F G GoalR1 with prob;
+#assert AtkPointGuard |= F G ScoreM1 with prob;
+#assert AtkPointGuard |= F G ScoreL1 with prob;
+#assert AtkPointGuard |= F G ScoreR1 with prob;
+
+#assert AtkShootingGuard |= F G ScoreM1 with prob;
+#assert AtkShootingGuard |= F G ScoreL1 with prob;
+#assert AtkShootingGuard |= F G ScoreR1 with prob;
+
+#assert AtkSmallForward |= F G ScoreM1 with prob;
+#assert AtkSmallForward |= F G ScoreL1 with prob;
+#assert AtkSmallForward |= F G ScoreR1 with prob;
