@@ -7,7 +7,7 @@
 #define R2 5;  // Right, outside 3-point line
 
 // Maximum number of passes allowed
-#define passesLimit 10;
+#define passesLimit 5;
 
 // Actions a player can take
 enum {Pass, Shoot};
@@ -40,15 +40,14 @@ var atkCenterPos = M1; // Center at the middle, inside the 3-point line, M1
 // ========================= Attacking Team Players =========================
 // The attacking team can either pass the ball or shoot
 // Here 80, 70 represents the pass and score ratings for this particular player
-AtkPointGuard = [pos[M2] == 1]PointGuard(80, 70, M2);
-AtkShootingGuard = [pos[R2] == 1]ShootingGuard(75, 85, R2);
-AtkSmallForward = [pos[L2] == 1]SmallForward(70, 80, L2);
-AtkPowerForward = [pos[R1] == 1]PowerForward(85, 75, R1);
-AtkCenter = [pos[M1] == 1]Center(90, 60, M1);
+AtkPointGuard = [pos[atkPointGuardPos] == 1]PointGuard(80, 70, M2);
+AtkShootingGuard = [pos[atkShootingGuardPos] == 1]ShootingGuard(75, 85, R2);
+AtkSmallForward = [pos[atkSmallForwardPos] == 1]SmallForward(70, 80, L2);
+AtkPowerForward = [pos[atkPowerForwardPos] == 1]PowerForward(85, 75, R1);
+AtkCenter = [pos[atkCenterPos] == 1]Center(90, 60, M1);
 
 // ========================= Individual Player Actions =========================
-// PointGuard only passes the ball to the PowerForward or Center who is inside the 3-point line
-// [TODO] Currently only moves the ball vertically from outside to inside. Need to add horizontal movement and backward movement.
+// PointGuard can pass the ball to the PowerForward, Center, ShootingGuard, SmallForward, or shoot
 // Check all the eligible positions to pass the ball from the current position
 // Pass the ball to the player at the eligible position
 PointGuard(i, j, p) =  [numPasses < passesLimit]([pos[atkPowerForwardPos] == 1]playerPass -> pcase {
@@ -63,15 +62,12 @@ PointGuard(i, j, p) =  [numPasses < passesLimit]([pos[atkPowerForwardPos] == 1]p
 } [] [pos[atkSmallForwardPos] == 1]playerPass -> pcase {
     i: {lastAction = Pass; lastPos = p; lastResult = Success;numPasses = numPasses + 1;} -> pass -> UpdatePos(atkSmallForwardPos, Pass); AtkSmallForward
     100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
-} [] [pos[atkSmallForwardPos] == 1]playerPass -> pcase {
-    i: {lastAction = Pass; lastPos = p; lastResult = Success;} -> pass -> UpdatePos(p, Pass); AtkSmallForward
-    100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
 }) [] playerShoot -> pcase {
     j: {lastAction = Shoot; lastPos = p; lastResult = Success;} -> shoot -> Skip
     100-j: {lastAction = Shoot; lastPos = p; lastResult = Failure;} -> missed -> Skip
 };
 
-// ShootingGuard can only pass the ball to the PowerForward or Center who is inside the 3-point line
+// ShootingGuard can pass the ball to the PowerForward, Center, PointGuard, SmallForward, or shoot
 ShootingGuard(i, j, p) = [numPasses < passesLimit]([pos[atkPowerForwardPos] == 1]playerPass -> pcase {
     i: {lastAction = Pass; lastPos = p; lastResult = Success;numPasses = numPasses + 1;} -> pass -> UpdatePos(atkPowerForwardPos, Pass); AtkPowerForward
     100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
@@ -89,7 +85,7 @@ ShootingGuard(i, j, p) = [numPasses < passesLimit]([pos[atkPowerForwardPos] == 1
     100-j: {lastAction = Shoot; lastPos = p; lastResult = Failure;} -> missed -> Skip
 };
 
-// SmallForward can pass the ball to the PowerForward or Center who is inside the 3-point line
+// SmallForward can pass the ball to the PowerForward, Center, PointGuard, ShootingGuard, or shoot
 SmallForward(i, j, p) = [numPasses < passesLimit]([pos[atkPowerForwardPos] == 1]playerPass -> pcase {
     i: {lastAction = Pass; lastPos = p; lastResult = Success;numPasses = numPasses + 1;} -> pass -> UpdatePos(atkPowerForwardPos, Pass); AtkPowerForward
     100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
@@ -107,7 +103,7 @@ SmallForward(i, j, p) = [numPasses < passesLimit]([pos[atkPowerForwardPos] == 1]
     100-j: {lastAction = Shoot; lastPos = p; lastResult = Failure;} -> missed -> Skip
 };
 
-// AtkPowerForward can pass the ball to the Center or shoot
+// AtkPowerForward can pass the ball to the Center, PointGuard, ShootingGuard, SmallForward, or shoot
 PowerForward(i, j, p) = [numPasses < passesLimit]([pos[atkCenterPos] == 1]playerPass -> pcase {
     i: {lastAction = Pass; lastPos = p; lastResult = Success;numPasses = numPasses + 1;} -> pass -> UpdatePos(atkCenterPos, Pass); AtkCenter
     100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
@@ -125,7 +121,7 @@ PowerForward(i, j, p) = [numPasses < passesLimit]([pos[atkCenterPos] == 1]player
     100-j: {lastAction = Shoot; lastPos = p; lastResult = Failure;} -> missed -> Skip
 };
 
-// AtkCenter can only shoot
+// AtkCenter can pass the ball to the PointGuard, ShootingGuard, SmallForward, PowerForward, or shoot
 Center(i, j, p) = [numPasses < passesLimit]([pos[atkPointGuardPos] == 1]playerPass -> pcase {
     i: {lastAction = Pass; lastPos = p; lastResult = Success;numPasses = numPasses + 1;} -> pass -> UpdatePos(atkPointGuardPos, Pass); AtkPointGuard
     100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
@@ -139,12 +135,12 @@ Center(i, j, p) = [numPasses < passesLimit]([pos[atkPointGuardPos] == 1]playerPa
     i: {lastAction = Pass; lastPos = p; lastResult = Success;numPasses = numPasses + 1;} -> pass -> UpdatePos(atkPowerForwardPos, Pass); AtkPowerForward
     100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
 }) [] playerShoot -> pcase {
-    i: {lastAction = Shoot; lastPos = p; lastResult = Success;} -> shoot -> Skip
-    100-i: {lastAction = Shoot; lastPos = p; lastResult = Failure;} -> missed -> Skip
+    j: {lastAction = Shoot; lastPos = p; lastResult = Success;} -> shoot -> Skip
+    100-j: {lastAction = Shoot; lastPos = p; lastResult = Failure;} -> missed -> Skip
 };
 
 // Update the eligible positions of receiving the ball on the court after an action
-// [TODO] Currently only moves the ball vertically from outside to inside. Need to add horizontal movement and backward movement.
+// The ball can be passed to the player at the neighboring positions
 UpdatePos(p, e) = case {
     // Update the eligible positions of receiving the ball on the court after a pass
     // The grid is 2 rows and 3 columns, but presented as a 1D array; The positions are L1, M1, R1, L2, M2, R2
@@ -170,13 +166,7 @@ UpdatePos(p, e) = case {
 
 // Check that a shot is eventually successful from each position
 #assert AtkPointGuard |= F G ScoreM1 with prob;
-#assert AtkPointGuard |= F G ScoreL1 with prob;
 #assert AtkPointGuard |= F G ScoreR1 with prob;
-
-#assert AtkShootingGuard |= F G ScoreM1 with prob;
-#assert AtkShootingGuard |= F G ScoreL1 with prob;
-#assert AtkShootingGuard |= F G ScoreR1 with prob;
-
-#assert AtkSmallForward |= F G ScoreM1 with prob;
-#assert AtkSmallForward |= F G ScoreL1 with prob;
-#assert AtkSmallForward |= F G ScoreR1 with prob;
+#assert AtkPointGuard |= F G ScoreL2 with prob;
+#assert AtkPointGuard |= F G ScoreM2 with prob;
+#assert AtkPointGuard |= F G ScoreR2 with prob;
