@@ -1,13 +1,13 @@
-#define playerPGPass 98;
-#define playerPGScore 42;
-#define playerSGPass 97;
-#define playerSGScore 46;
-#define playerSFPass 98;
-#define playerSFScore 42;
+#define playerPGPass 97;
+#define playerPGScore 46;
+#define playerSGPass 99;
+#define playerSGScore 48;
+#define playerSFPass 99;
+#define playerSFScore 49;
 #define playerPFPass 98;
-#define playerPFScore 47;
+#define playerPFScore 50;
 #define playerCPass 98;
-#define playerCScore 49;
+#define playerCScore 68;
 
 
 // Positions on the court
