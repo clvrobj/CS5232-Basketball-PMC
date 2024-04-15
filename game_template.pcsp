@@ -1,3 +1,14 @@
+#define playerPGPass 80;
+#define playerPGScore 70;
+#define playerSGPass 75;
+#define playerSGScore 85;
+#define playerSFPass 70;
+#define playerSFScore 80;
+#define playerPFPass 85;
+#define playerPFScore 75;
+#define playerCPass 90;
+#define playerCScore 60;
+
 // Positions on the court
 #define L1 0;  // Left, inside 3-point line
 #define M1 1;  // Middle, inside 3-point line
@@ -40,11 +51,11 @@ var atkCenterPos = M1; // Center at the middle, inside the 3-point line, M1
 // ========================= Attacking Team Players =========================
 // The attacking team can either pass the ball or shoot
 // Here 80, 70 represents the pass and score ratings for this particular player
-AtkPointGuard = [pos[atkPointGuardPos] == 1]PointGuard(80, 70, M2);
-AtkShootingGuard = [pos[atkShootingGuardPos] == 1]ShootingGuard(75, 85, R2);
-AtkSmallForward = [pos[atkSmallForwardPos] == 1]SmallForward(70, 80, L2);
-AtkPowerForward = [pos[atkPowerForwardPos] == 1]PowerForward(85, 75, R1);
-AtkCenter = [pos[atkCenterPos] == 1]Center(90, 60, M1);
+AtkPointGuard = [pos[atkPointGuardPos] == 1]PointGuard(playerPGPass, playerPGScore, M2);
+AtkShootingGuard = [pos[atkShootingGuardPos] == 1]ShootingGuard(playerSGPass, playerSGScore, R2);
+AtkSmallForward = [pos[atkSmallForwardPos] == 1]SmallForward(playerSFPass, playerSFScore, L2);
+AtkPowerForward = [pos[atkPowerForwardPos] == 1]PowerForward(playerPFPass, playerPFScore, R1);
+AtkCenter = [pos[atkCenterPos] == 1]Center(playerCPass, playerCScore, M1);
 
 // ========================= Individual Player Actions =========================
 // PointGuard can pass the ball to the PowerForward, Center, ShootingGuard, SmallForward, or shoot
