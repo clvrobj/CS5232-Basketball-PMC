@@ -31,12 +31,12 @@ if __name__ == "__main__":
             pass
     
     #### Find the game PCSP files
-    for root, dirs, files in os.walk(currentDir):
+    for root, dirs, files in os.walk(currentDir+"\\pscp_files"):
         for file in files:
-            if re.match(r"game_[0-9]+_[a-zA-Z]+\.pcsp", file):
+            if re.match(r"game_[0-9]+_[a-zA-Z]+_new\.pcsp", file):
                 pcspFilePath = os.path.join(root, file)
                 # Extract the game ID and team type from file name
-                game_id, team_type = os.path.basename(pcspFilePath).split(".")[0].split("_")[1:]
+                game_id, team_type, _ = os.path.basename(pcspFilePath).split(".")[0].split("_")[1:]
                 print("Predicting game ID: ", game_id, " Team type: ", team_type)
                 outputPathTmp = f"{outputPath}_{game_id}_{team_type}.txt"
                 executePATConsole(PATConsoleFilePath, pcspFilePath, outputPathTmp)

@@ -1,25 +1,7 @@
 =======================================================
-Assertion: AtkPointGuard() deadlockfree
+Assertion: AtkPointGuard() |= F G Score2Pass0 with prob
 ********Verification Result********
-The Assertion (AtkPointGuard() deadlockfree) is VALID.
-
-********Verification Setting********
-Admissible Behavior: All
-Search Engine: First Witness Trace using Depth First Search
-System Abstraction: False
-
-
-********Verification Statistics********
-Visited States:387
-Total Transitions:458
-Time Used:0.0386384s
-Estimated Memory Used:9240.952KB
-
-
-=======================================================
-Assertion: AtkPointGuard() |= F G ScoreM1 with prob
-********Verification Result********
-The Assertion (AtkPointGuard() |= F G ScoreM1 with prob) is Valid with Probability [0, 0.5335];
+The Assertion (AtkPointGuard() |= F G Score2Pass0 with prob) is NOT valid.
 
 WARNING: The system has deadlock states. Self-loop transitions have been added to remove the deadlock!
 
@@ -33,15 +15,15 @@ Maximum difference threshold : 1E-06
 ********Verification Statistics********
 Visited States:854
 Total Transitions:1072
-MDP Iterations:42
-Time Used:0.1463561s
-Estimated Memory Used:264340.96KB
+MDP Iterations:12
+Time Used:0.0901549s
+Estimated Memory Used:264755.456KB
 
 
 =======================================================
-Assertion: AtkPointGuard() |= F G ScoreR1 with prob
+Assertion: AtkPointGuard() |= F G Score2Pass1 with prob
 ********Verification Result********
-The Assertion (AtkPointGuard() |= F G ScoreR1 with prob) is Valid with Probability [0, 0.45629];
+The Assertion (AtkPointGuard() |= F G Score2Pass1 with prob) is Valid with Probability [0, 0.5335];
 
 WARNING: The system has deadlock states. Self-loop transitions have been added to remove the deadlock!
 
@@ -55,15 +37,15 @@ Maximum difference threshold : 1E-06
 ********Verification Statistics********
 Visited States:854
 Total Transitions:1072
-MDP Iterations:48
-Time Used:0.0401664s
-Estimated Memory Used:264338.384KB
+MDP Iterations:32
+Time Used:0.0323997s
+Estimated Memory Used:264441.984KB
 
 
 =======================================================
-Assertion: AtkPointGuard() |= F G ScoreL2 with prob
+Assertion: AtkPointGuard() |= F G Score2Pass2 with prob
 ********Verification Result********
-The Assertion (AtkPointGuard() |= F G ScoreL2 with prob) is Valid with Probability [0, 0.5044];
+The Assertion (AtkPointGuard() |= F G Score2Pass2 with prob) is Valid with Probability [0, 0.45629];
 
 WARNING: The system has deadlock states. Self-loop transitions have been added to remove the deadlock!
 
@@ -77,15 +59,15 @@ Maximum difference threshold : 1E-06
 ********Verification Statistics********
 Visited States:854
 Total Transitions:1072
-MDP Iterations:48
-Time Used:0.1125906s
-Estimated Memory Used:264339.904KB
+MDP Iterations:38
+Time Used:0.0360764s
+Estimated Memory Used:264425.44KB
 
 
 =======================================================
-Assertion: AtkPointGuard() |= F G ScoreM2 with prob
+Assertion: AtkPointGuard() |= F G Score2Pass3 with prob
 ********Verification Result********
-The Assertion (AtkPointGuard() |= F G ScoreM2 with prob) is Valid with Probability [0, 0.5];
+The Assertion (AtkPointGuard() |= F G Score2Pass3 with prob) is Valid with Probability [0, 0.51237];
 
 WARNING: The system has deadlock states. Self-loop transitions have been added to remove the deadlock!
 
@@ -99,15 +81,15 @@ Maximum difference threshold : 1E-06
 ********Verification Statistics********
 Visited States:854
 Total Transitions:1072
-MDP Iterations:42
-Time Used:0.1576703s
-Estimated Memory Used:264339.648KB
+MDP Iterations:44
+Time Used:0.0535327s
+Estimated Memory Used:264432.896KB
 
 
 =======================================================
-Assertion: AtkPointGuard() |= F G ScoreR2 with prob
+Assertion: AtkPointGuard() |= F G Score2Pass4 with prob
 ********Verification Result********
-The Assertion (AtkPointGuard() |= F G ScoreR2 with prob) is Valid with Probability [0, 0.5238];
+The Assertion (AtkPointGuard() |= F G Score2Pass4 with prob) is Valid with Probability [0, 0.43822];
 
 WARNING: The system has deadlock states. Self-loop transitions have been added to remove the deadlock!
 
@@ -121,8 +103,162 @@ Maximum difference threshold : 1E-06
 ********Verification Statistics********
 Visited States:854
 Total Transitions:1072
-MDP Iterations:42
-Time Used:0.1194765s
-Estimated Memory Used:264341.088KB
+MDP Iterations:50
+Time Used:0.0557605s
+Estimated Memory Used:264441.824KB
+
+
+=======================================================
+Assertion: AtkPointGuard() |= F G Score2Pass5 with prob
+********Verification Result********
+The Assertion (AtkPointGuard() |= F G Score2Pass5 with prob) is Valid with Probability [0, 0.49208];
+
+WARNING: The system has deadlock states. Self-loop transitions have been added to remove the deadlock!
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: End-Components Identification; Graph-based Probabity Computation.
+System Abstraction: False
+Maximum difference threshold : 1E-06
+
+
+********Verification Statistics********
+Visited States:854
+Total Transitions:1072
+MDP Iterations:50
+Time Used:0.0597767s
+Estimated Memory Used:264441.792KB
+
+
+=======================================================
+Assertion: AtkPointGuard() |= F G Score3Pass0 with prob
+********Verification Result********
+The Assertion (AtkPointGuard() |= F G Score3Pass0 with prob) is Valid with Probability [0, 0.5];
+
+WARNING: The system has deadlock states. Self-loop transitions have been added to remove the deadlock!
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: End-Components Identification; Graph-based Probabity Computation.
+System Abstraction: False
+Maximum difference threshold : 1E-06
+
+
+********Verification Statistics********
+Visited States:854
+Total Transitions:1072
+MDP Iterations:22
+Time Used:0.0642253s
+Estimated Memory Used:264419.536KB
+
+
+=======================================================
+Assertion: AtkPointGuard() |= F G Score3Pass1 with prob
+********Verification Result********
+The Assertion (AtkPointGuard() |= F G Score3Pass1 with prob) is Valid with Probability [0, 0.5238];
+
+WARNING: The system has deadlock states. Self-loop transitions have been added to remove the deadlock!
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: End-Components Identification; Graph-based Probabity Computation.
+System Abstraction: False
+Maximum difference threshold : 1E-06
+
+
+********Verification Statistics********
+Visited States:854
+Total Transitions:1072
+MDP Iterations:32
+Time Used:0.1392299s
+Estimated Memory Used:200496.256KB
+
+
+=======================================================
+Assertion: AtkPointGuard() |= F G Score3Pass2 with prob
+********Verification Result********
+The Assertion (AtkPointGuard() |= F G Score3Pass2 with prob) is Valid with Probability [0, 0.4753];
+
+WARNING: The system has deadlock states. Self-loop transitions have been added to remove the deadlock!
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: End-Components Identification; Graph-based Probabity Computation.
+System Abstraction: False
+Maximum difference threshold : 1E-06
+
+
+********Verification Statistics********
+Visited States:854
+Total Transitions:1072
+MDP Iterations:38
+Time Used:0.1647953s
+Estimated Memory Used:200504.432KB
+
+
+=======================================================
+Assertion: AtkPointGuard() |= F G Score3Pass3 with prob
+********Verification Result********
+The Assertion (AtkPointGuard() |= F G Score3Pass3 with prob) is Valid with Probability [0, 0.50306];
+
+WARNING: The system has deadlock states. Self-loop transitions have been added to remove the deadlock!
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: End-Components Identification; Graph-based Probabity Computation.
+System Abstraction: False
+Maximum difference threshold : 1E-06
+
+
+********Verification Statistics********
+Visited States:854
+Total Transitions:1072
+MDP Iterations:44
+Time Used:0.1764584s
+Estimated Memory Used:167716.992KB
+
+
+=======================================================
+Assertion: AtkPointGuard() |= F G Score3Pass4 with prob
+********Verification Result********
+The Assertion (AtkPointGuard() |= F G Score3Pass4 with prob) is Valid with Probability [0, 0.45648];
+
+WARNING: The system has deadlock states. Self-loop transitions have been added to remove the deadlock!
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: End-Components Identification; Graph-based Probabity Computation.
+System Abstraction: False
+Maximum difference threshold : 1E-06
+
+
+********Verification Statistics********
+Visited States:854
+Total Transitions:1072
+MDP Iterations:50
+Time Used:0.1907353s
+Estimated Memory Used:167716.992KB
+
+
+=======================================================
+Assertion: AtkPointGuard() |= F G Score3Pass5 with prob
+********Verification Result********
+The Assertion (AtkPointGuard() |= F G Score3Pass5 with prob) is Valid with Probability [0, 0.48314];
+
+WARNING: The system has deadlock states. Self-loop transitions have been added to remove the deadlock!
+
+********Verification Setting********
+Admissible Behavior: All
+Search Engine: End-Components Identification; Graph-based Probabity Computation.
+System Abstraction: False
+Maximum difference threshold : 1E-06
+
+
+********Verification Statistics********
+Visited States:854
+Total Transitions:1072
+MDP Iterations:50
+Time Used:0.2000801s
+Estimated Memory Used:135148.096KB
 
 

@@ -1,0 +1,198 @@
+#define playerPGPass 97;
+#define playerPGScore 48;
+#define playerSGPass 98;
+#define playerSGScore 51;
+#define playerSFPass 98;
+#define playerSFScore 58;
+#define playerPFPass 98;
+#define playerPFScore 46;
+#define playerCPass 98;
+#define playerCScore 51;
+
+
+// Positions on the court
+#define L1 0;  // Left, inside 3-point line
+#define M1 1;  // Middle, inside 3-point line
+#define R1 2;  // Right, inside 3-point line
+#define L2 3;  // Left, outside 3-point line
+#define M2 4;  // Middle, outside 3-point line
+#define R2 5;  // Right, outside 3-point line
+
+// Maximum number of passes allowed
+#define passesLimit 5;
+
+// Actions a player can take
+enum {Pass, Shoot};
+
+enum {Success, Failure};
+
+var lastAction = Pass;
+var lastPos = 0;
+var lastResult = Success;
+
+// Number of passes made so far
+var numPasses = 0;
+
+// The court split into 6 areas that can receive the ball
+// 1 means the position eligible to receive the ball    
+// 0 means the position is not eligible to receive the ball
+// Initial eligible position of the ball from the PointGuard position
+var pos = [0, 1, 0, 1, 1, 1]; // L1, M1, R1, L2, M2, R2
+
+// The player positions on the court
+// Each player can have a matrix of the court with 1s and 0s
+// 1 means the player is in that position
+// 0 means the player is not in that position
+var atkPointGuardPos = M2; // PointGuard at the middle, outside the 3-point line, M2
+var atkShootingGuardPos = R2; // ShootingGuard at the right, outside the 3-point line, R2
+var atkSmallForwardPos = L2; // SmallForward at the left, outside the 3-point line, L2
+var atkPowerForwardPos = R1; // PowerForward at the right, inside the 3-point line, R1
+var atkCenterPos = M1; // Center at the middle, inside the 3-point line, M1
+
+// ========================= Attacking Team Players =========================
+// The attacking team can either pass the ball or shoot
+// Here 80, 70 represents the pass and score ratings for this particular player
+AtkPointGuard = [pos[atkPointGuardPos] == 1]PointGuard(playerPGPass, playerPGScore, M2);
+AtkShootingGuard = [pos[atkShootingGuardPos] == 1]ShootingGuard(playerSGPass, playerSGScore, R2);
+AtkSmallForward = [pos[atkSmallForwardPos] == 1]SmallForward(playerSFPass, playerSFScore, L2);
+AtkPowerForward = [pos[atkPowerForwardPos] == 1]PowerForward(playerPFPass, playerPFScore, R1);
+AtkCenter = [pos[atkCenterPos] == 1]Center(playerCPass, playerCScore, M1);
+
+// ========================= Individual Player Actions =========================
+// PointGuard can pass the ball to the PowerForward, Center, ShootingGuard, SmallForward, or shoot
+// Check all the eligible positions to pass the ball from the current position
+// Pass the ball to the player at the eligible position
+PointGuard(i, j, p) =  [numPasses < passesLimit]([pos[atkPowerForwardPos] == 1]playerPass -> pcase {
+    i: {lastAction = Pass; lastPos = p; lastResult = Success;numPasses = numPasses + 1;} -> pass -> UpdatePos(atkPowerForwardPos, Pass); AtkPowerForward
+    100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
+} [] [pos[atkCenterPos] == 1]playerPass -> pcase {
+    i: {lastAction = Pass; lastPos = p; lastResult = Success;numPasses = numPasses + 1;} -> pass -> UpdatePos(atkCenterPos, Pass); AtkCenter
+    100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
+} [] [pos[atkShootingGuardPos] == 1]playerPass -> pcase {
+    i: {lastAction = Pass; lastPos = p; lastResult = Success;numPasses = numPasses + 1;} -> pass -> UpdatePos(atkShootingGuardPos, Pass); AtkShootingGuard
+    100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
+} [] [pos[atkSmallForwardPos] == 1]playerPass -> pcase {
+    i: {lastAction = Pass; lastPos = p; lastResult = Success;numPasses = numPasses + 1;} -> pass -> UpdatePos(atkSmallForwardPos, Pass); AtkSmallForward
+    100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
+}) [] playerShoot -> pcase {
+    j: {lastAction = Shoot; lastPos = p; lastResult = Success;} -> shoot -> Skip
+    100-j: {lastAction = Shoot; lastPos = p; lastResult = Failure;} -> missed -> Skip
+};
+
+// ShootingGuard can pass the ball to the PowerForward, Center, PointGuard, SmallForward, or shoot
+ShootingGuard(i, j, p) = [numPasses < passesLimit]([pos[atkPowerForwardPos] == 1]playerPass -> pcase {
+    i: {lastAction = Pass; lastPos = p; lastResult = Success;numPasses = numPasses + 1;} -> pass -> UpdatePos(atkPowerForwardPos, Pass); AtkPowerForward
+    100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
+} [] [pos[atkCenterPos] == 1]playerPass -> pcase {
+    i: {lastAction = Pass; lastPos = p; lastResult = Success;numPasses = numPasses + 1;} -> pass -> UpdatePos(atkCenterPos, Pass); AtkCenter
+    100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
+} [] [pos[atkPointGuardPos] == 1]playerPass -> pcase {
+    i: {lastAction = Pass; lastPos = p; lastResult = Success;numPasses = numPasses + 1;} -> pass -> UpdatePos(atkPointGuardPos, Pass); AtkPointGuard
+    100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
+} [] [pos[atkSmallForwardPos] == 1]playerPass -> pcase {
+    i: {lastAction = Pass; lastPos = p; lastResult = Success;numPasses = numPasses + 1;} -> pass -> UpdatePos(atkSmallForwardPos, Pass); AtkSmallForward
+    100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
+}) [] playerShoot -> pcase {
+    j: {lastAction = Shoot; lastPos = p; lastResult = Success;} -> shoot -> Skip
+    100-j: {lastAction = Shoot; lastPos = p; lastResult = Failure;} -> missed -> Skip
+};
+
+// SmallForward can pass the ball to the PowerForward, Center, PointGuard, ShootingGuard, or shoot
+SmallForward(i, j, p) = [numPasses < passesLimit]([pos[atkPowerForwardPos] == 1]playerPass -> pcase {
+    i: {lastAction = Pass; lastPos = p; lastResult = Success;numPasses = numPasses + 1;} -> pass -> UpdatePos(atkPowerForwardPos, Pass); AtkPowerForward
+    100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
+} [] [pos[atkCenterPos] == 1]playerPass -> pcase {
+    i: {lastAction = Pass; lastPos = p; lastResult = Success;numPasses = numPasses + 1;} -> pass -> UpdatePos(atkCenterPos, Pass); AtkCenter
+    100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
+} [] [pos[atkPointGuardPos] == 1]playerPass -> pcase {
+    i: {lastAction = Pass; lastPos = p; lastResult = Success;numPasses = numPasses + 1;} -> pass -> UpdatePos(atkPointGuardPos, Pass); AtkPointGuard
+    100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
+} [] [pos[atkShootingGuardPos] == 1]playerPass -> pcase {
+    i: {lastAction = Pass; lastPos = p; lastResult = Success;numPasses = numPasses + 1;} -> pass -> UpdatePos(atkShootingGuardPos, Pass); AtkShootingGuard
+    100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
+}) [] playerShoot -> pcase {
+    j: {lastAction = Shoot; lastPos = p; lastResult = Success;} -> shoot -> Skip
+    100-j: {lastAction = Shoot; lastPos = p; lastResult = Failure;} -> missed -> Skip
+};
+
+// AtkPowerForward can pass the ball to the Center, PointGuard, ShootingGuard, SmallForward, or shoot
+PowerForward(i, j, p) = [numPasses < passesLimit]([pos[atkCenterPos] == 1]playerPass -> pcase {
+    i: {lastAction = Pass; lastPos = p; lastResult = Success;numPasses = numPasses + 1;} -> pass -> UpdatePos(atkCenterPos, Pass); AtkCenter
+    100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
+} [] [pos[atkPointGuardPos] == 1]playerPass -> pcase {
+    i: {lastAction = Pass; lastPos = p; lastResult = Success;numPasses = numPasses + 1;} -> pass -> UpdatePos(atkPointGuardPos, Pass); AtkPointGuard
+    100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
+} [] [pos[atkSmallForwardPos] == 1]playerPass -> pcase {
+    i: {lastAction = Pass; lastPos = p; lastResult = Success;numPasses = numPasses + 1;} -> pass -> UpdatePos(atkSmallForwardPos, Pass); AtkSmallForward
+    100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
+} [] [pos[atkShootingGuardPos] == 1]playerPass -> pcase {
+    i: {lastAction = Pass; lastPos = p; lastResult = Success;numPasses = numPasses + 1;} -> pass -> UpdatePos(atkShootingGuardPos, Pass); AtkShootingGuard
+    100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
+}) [] playerShoot -> pcase {
+    j: {lastAction = Shoot; lastPos = p; lastResult = Success;} -> shoot -> Skip
+    100-j: {lastAction = Shoot; lastPos = p; lastResult = Failure;} -> missed -> Skip
+};
+
+// AtkCenter can pass the ball to the PointGuard, ShootingGuard, SmallForward, PowerForward, or shoot
+Center(i, j, p) = [numPasses < passesLimit]([pos[atkPointGuardPos] == 1]playerPass -> pcase {
+    i: {lastAction = Pass; lastPos = p; lastResult = Success;numPasses = numPasses + 1;} -> pass -> UpdatePos(atkPointGuardPos, Pass); AtkPointGuard
+    100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
+} [] [pos[atkShootingGuardPos] == 1]playerPass -> pcase {
+    i: {lastAction = Pass; lastPos = p; lastResult = Success;numPasses = numPasses + 1;} -> pass -> UpdatePos(atkShootingGuardPos, Pass); AtkShootingGuard
+    100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
+} [] [pos[atkSmallForwardPos] == 1]playerPass -> pcase {
+    i: {lastAction = Pass; lastPos = p; lastResult = Success;numPasses = numPasses + 1;} -> pass -> UpdatePos(atkSmallForwardPos, Pass); AtkSmallForward
+    100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
+} [] [pos[atkPowerForwardPos] == 1]playerPass -> pcase {
+    i: {lastAction = Pass; lastPos = p; lastResult = Success;numPasses = numPasses + 1;} -> pass -> UpdatePos(atkPowerForwardPos, Pass); AtkPowerForward
+    100-i: {lastAction = Pass; lastPos = p; lastResult = Failure;} -> intercepted -> Skip
+}) [] playerShoot -> pcase {
+    j: {lastAction = Shoot; lastPos = p; lastResult = Success;} -> shoot -> Skip
+    100-j: {lastAction = Shoot; lastPos = p; lastResult = Failure;} -> missed -> Skip
+};
+
+// Update the eligible positions of receiving the ball on the court after an action
+// The ball can be passed to the player at the neighboring positions
+UpdatePos(p, e) = case {
+    // Update the eligible positions of receiving the ball on the court after a pass
+    // The grid is 2 rows and 3 columns, but presented as a 1D array; The positions are L1, M1, R1, L2, M2, R2
+    // The eligible positions are updated based on the current position p
+    // The eligible positions are the positions 1 step closer to the current position p
+    p == L1: {pos[L1] = 1; pos[M1] = 1; pos[R1] = 0; pos[L2] = 1; pos[M2] = 0; pos[R2] = 0;} -> Skip
+    p == M1: {pos[L1] = 1; pos[M1] = 1; pos[R1] = 1; pos[L2] = 0; pos[M2] = 1; pos[R2] = 0;} -> Skip
+    p == R1: {pos[L1] = 0; pos[M1] = 1; pos[R1] = 1; pos[L2] = 0; pos[M2] = 0; pos[R2] = 1;} -> Skip
+    p == L2: {pos[L1] = 1; pos[M1] = 0; pos[R1] = 0; pos[L2] = 1; pos[M2] = 1; pos[R2] = 0;} -> Skip
+    p == M2: {pos[L1] = 0; pos[M1] = 1; pos[R1] = 0; pos[L2] = 1; pos[M2] = 1; pos[R2] = 1;} -> Skip
+    p == R2: {pos[L1] = 0; pos[M1] = 0; pos[R1] = 1; pos[L2] = 0; pos[M2] = 1; pos[R2] = 1;} -> Skip
+};
+
+// Define goals as successful shots from different areas of the court
+#define Score2Pass0 lastAction == Shoot && lastResult == Success && numPasses==0 && (lastPos == L1 || lastPos == R1 || lastPos == M1);
+#define Score2Pass1 lastAction == Shoot && lastResult == Success && numPasses==1 && (lastPos == L1 || lastPos == R1 || lastPos == M1);
+#define Score2Pass2 lastAction == Shoot && lastResult == Success && numPasses==2 && (lastPos == L1 || lastPos == R1 || lastPos == M1);
+#define Score2Pass3 lastAction == Shoot && lastResult == Success && numPasses==3 && (lastPos == L1 || lastPos == R1 || lastPos == M1);
+#define Score2Pass4 lastAction == Shoot && lastResult == Success && numPasses==4 && (lastPos == L1 || lastPos == R1 || lastPos == M1);
+#define Score2Pass5 lastAction == Shoot && lastResult == Success && numPasses==5 && (lastPos == L1 || lastPos == R1 || lastPos == M1);
+#define Score3Pass0 lastAction == Shoot && lastResult == Success && numPasses==0 && (lastPos == L2 || lastPos == R2 || lastPos == M2);
+#define Score3Pass1 lastAction == Shoot && lastResult == Success && numPasses==1 && (lastPos == L2 || lastPos == R2 || lastPos == M2);
+#define Score3Pass2 lastAction == Shoot && lastResult == Success && numPasses==2 && (lastPos == L2 || lastPos == R2 || lastPos == M2);
+#define Score3Pass3 lastAction == Shoot && lastResult == Success && numPasses==3 && (lastPos == L2 || lastPos == R2 || lastPos == M2);
+#define Score3Pass4 lastAction == Shoot && lastResult == Success && numPasses==4 && (lastPos == L2 || lastPos == R2 || lastPos == M2);
+#define Score3Pass5 lastAction == Shoot && lastResult == Success && numPasses==5 && (lastPos == L2 || lastPos == R2 || lastPos == M2);
+
+
+// #assert AtkPointGuard deadlockfree;
+
+// Check that a shot is eventually successful from each position
+#assert AtkPointGuard |= F G Score2Pass0 with prob;
+#assert AtkPointGuard |= F G Score2Pass1 with prob;
+#assert AtkPointGuard |= F G Score2Pass2 with prob;
+#assert AtkPointGuard |= F G Score2Pass3 with prob;
+#assert AtkPointGuard |= F G Score2Pass4 with prob;
+#assert AtkPointGuard |= F G Score2Pass5 with prob;
+#assert AtkPointGuard |= F G Score3Pass0 with prob;
+#assert AtkPointGuard |= F G Score3Pass1 with prob;
+#assert AtkPointGuard |= F G Score3Pass2 with prob;
+#assert AtkPointGuard |= F G Score3Pass3 with prob;
+#assert AtkPointGuard |= F G Score3Pass4 with prob;
+#assert AtkPointGuard |= F G Score3Pass5 with prob;
