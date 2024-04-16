@@ -24,12 +24,12 @@ def extractGameResultSoftmax(outputPathHome, outputPathAway):
                         if "Score2Pass" in line:
                             tempScore = float(prob[1]) * 2
                             passNum = float(line[line.find("Score2Pass") + len("Score2Pass")])
-                            tempScore = tempScore * pow(DISCOUNT_FACTOR, passNum)
+                            tempScore = tempScore * pow(DISCOUNT_FACTOR, passNum) / 5
                             expected_score = expected_score + tempScore
                         elif "Score3Pass" in line:
                             tempScore = float(prob[1]) * 3
                             passNum = float(line[line.find("Score3Pass") + len("Score3Pass")])
-                            tempScore = tempScore * pow(DISCOUNT_FACTOR, passNum)
+                            tempScore = tempScore * pow(DISCOUNT_FACTOR, passNum) / 5
                             expected_score = expected_score + tempScore
             if len(probs) > 0:
                 # Return the lowest and highest probabilities from the probs list
