@@ -34,17 +34,25 @@ def extractGameResultSoftmax(outputPathHome, outputPathAway):
         away_softmax = sigmoid(away_low - away_high)
         # return the winner of the game
         if home_softmax > away_softmax:
-            return "home"
+            return "home", probHome, probAway
         else:
-            return "away"
-    
+            return "away", probHome, probAway
     return None
+def writeLineToFile(filePath, line, mode):
+    try:
+        with open(filePath, mode) as file:
+            file.write(line+'\n')
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
 
 
 if __name__ == "__main__":
     # Find all the game probability files in the output directory
     currentDir = os.getcwd()
     outputPath = currentDir + "/output"
+    outputCSVPath = os.path.join(currentDir, "output", "game_winner_summary.csv")
+    writeLineToFile(outputCSVPath, "game_id,team_type,prob_home_low,prob_home_high,prob_away_low,prob_away_high,winner", 'w')
     for root, dirs, files in os.walk(outputPath):
         for file in files:
             print(f"Processing file: {file}")
@@ -55,8 +63,10 @@ if __name__ == "__main__":
                 outputPathHome = os.path.join(root, f"game_prob_{game_id}_home.txt")
                 outputPathAway = os.path.join(root, f"game_prob_{game_id}_away.txt")
                 # Predict the game result
-                winner = extractGameResultSoftmax(outputPathHome, outputPathAway)
+                winner, probHome, probAway = extractGameResultSoftmax(outputPathHome, outputPathAway)
                 if winner:
                     print(f"Game ID: {game_id}, Team type: {team_type}, Winner: {winner}")
+                    writeLineToFile(outputCSVPath, f"{game_id},{team_type},{probHome[0]},{probHome[1]},{probAway[0]},{probAway[1]},{winner}", 'a')
                 else:
                     print(f"Game ID: {game_id}, Team type: {team_type}, No winner")
+                    writeLineToFile(outputCSVPath, f"{game_id},{team_type},{probHome[0]},{probHome[1]},{probAway[0]},{probAway[1]},", 'a')
