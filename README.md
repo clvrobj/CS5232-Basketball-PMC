@@ -7,6 +7,8 @@ python py_scripts/get_game_stats.py
 python py_scripts/run_game.py
 
 python py_scripts/gen_pred_game_results.py
+
+python py_scripts/evaluate_with_actual_winner.py
 ```
 
 
