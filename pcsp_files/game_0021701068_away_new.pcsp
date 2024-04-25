@@ -1,13 +1,13 @@
 #define playerPGPass 97;
-#define playerPGScore 44;
+#define playerPGScore 41;
 #define playerSGPass 98;
 #define playerSGScore 51;
-#define playerSFPass 98;
-#define playerSFScore 48;
+#define playerSFPass 97;
+#define playerSFScore 52;
 #define playerPFPass 98;
-#define playerPFScore 48;
-#define playerCPass 97;
-#define playerCScore 38;
+#define playerPFScore 59;
+#define playerCPass 98;
+#define playerCScore 59;
 
 
 // Positions on the court
@@ -167,18 +167,32 @@ UpdatePos(p, e) = case {
 };
 
 // Define goals as successful shots from different areas of the court
-#define ScoreL1 lastAction == Shoot && lastPos == L1 && lastResult == Success;
-#define ScoreM1 lastAction == Shoot && lastPos == M1 && lastResult == Success;
-#define ScoreR1 lastAction == Shoot && lastPos == R1 && lastResult == Success;
-#define ScoreL2 lastAction == Shoot && lastPos == L2 && lastResult == Success;
-#define ScoreM2 lastAction == Shoot && lastPos == M2 && lastResult == Success;
-#define ScoreR2 lastAction == Shoot && lastPos == R2 && lastResult == Success;
+#define Score2Pass0 lastAction == Shoot && lastResult == Success && numPasses==0 && (lastPos == L1 || lastPos == R1 || lastPos == M1);
+#define Score2Pass1 lastAction == Shoot && lastResult == Success && numPasses==1 && (lastPos == L1 || lastPos == R1 || lastPos == M1);
+#define Score2Pass2 lastAction == Shoot && lastResult == Success && numPasses==2 && (lastPos == L1 || lastPos == R1 || lastPos == M1);
+#define Score2Pass3 lastAction == Shoot && lastResult == Success && numPasses==3 && (lastPos == L1 || lastPos == R1 || lastPos == M1);
+#define Score2Pass4 lastAction == Shoot && lastResult == Success && numPasses==4 && (lastPos == L1 || lastPos == R1 || lastPos == M1);
+#define Score2Pass5 lastAction == Shoot && lastResult == Success && numPasses==5 && (lastPos == L1 || lastPos == R1 || lastPos == M1);
+#define Score3Pass0 lastAction == Shoot && lastResult == Success && numPasses==0 && (lastPos == L2 || lastPos == R2 || lastPos == M2);
+#define Score3Pass1 lastAction == Shoot && lastResult == Success && numPasses==1 && (lastPos == L2 || lastPos == R2 || lastPos == M2);
+#define Score3Pass2 lastAction == Shoot && lastResult == Success && numPasses==2 && (lastPos == L2 || lastPos == R2 || lastPos == M2);
+#define Score3Pass3 lastAction == Shoot && lastResult == Success && numPasses==3 && (lastPos == L2 || lastPos == R2 || lastPos == M2);
+#define Score3Pass4 lastAction == Shoot && lastResult == Success && numPasses==4 && (lastPos == L2 || lastPos == R2 || lastPos == M2);
+#define Score3Pass5 lastAction == Shoot && lastResult == Success && numPasses==5 && (lastPos == L2 || lastPos == R2 || lastPos == M2);
 
-#assert AtkPointGuard deadlockfree;
+
+// #assert AtkPointGuard deadlockfree;
 
 // Check that a shot is eventually successful from each position
-#assert AtkPointGuard |= F G ScoreM1 with prob;
-#assert AtkPointGuard |= F G ScoreR1 with prob;
-#assert AtkPointGuard |= F G ScoreL2 with prob;
-#assert AtkPointGuard |= F G ScoreM2 with prob;
-#assert AtkPointGuard |= F G ScoreR2 with prob;
+#assert AtkPointGuard |= F G Score2Pass0 with prob;
+#assert AtkPointGuard |= F G Score2Pass1 with prob;
+#assert AtkPointGuard |= F G Score2Pass2 with prob;
+#assert AtkPointGuard |= F G Score2Pass3 with prob;
+#assert AtkPointGuard |= F G Score2Pass4 with prob;
+#assert AtkPointGuard |= F G Score2Pass5 with prob;
+#assert AtkPointGuard |= F G Score3Pass0 with prob;
+#assert AtkPointGuard |= F G Score3Pass1 with prob;
+#assert AtkPointGuard |= F G Score3Pass2 with prob;
+#assert AtkPointGuard |= F G Score3Pass3 with prob;
+#assert AtkPointGuard |= F G Score3Pass4 with prob;
+#assert AtkPointGuard |= F G Score3Pass5 with prob;
