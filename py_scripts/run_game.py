@@ -48,7 +48,7 @@ def run_all_games():
             if re.match(r"game_[0-9]+_[a-zA-Z]+\.pcsp", file):
                 pcspFilePath = os.path.join(root, file)
                 # Extract the game ID and team type from file name
-                game_id, team_type, _ = os.path.basename(pcspFilePath).split(".")[0].split("_")[1:]
+                game_id, team_type = os.path.basename(pcspFilePath).split(".")[0].split("_")[1:]
                 run_one_game(game_id, team_type)
 
     return
