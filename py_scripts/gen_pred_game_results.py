@@ -42,6 +42,8 @@ def extractGameResultSoftmax(outputPathHome, outputPathAway):
     probAway = extractGameResultProbabilities(outputPathAway)
     print(f"ProbHome: {probHome}, ProbAway: {probAway}")
     winner = None
+    home_softmax = 0
+    away_softmax = 0
     if probHome and probAway:
         home_low, home_high, home_expected_score = probHome
         away_low, away_high, away_expected_score = probAway
@@ -52,7 +54,7 @@ def extractGameResultSoftmax(outputPathHome, outputPathAway):
             winner = "home" 
         else:
             winner =  "away"
-    return winner, probHome, probAway, home_expected_score, away_expected_score
+    return winner, probHome, probAway, home_expected_score, away_expected_score, home_softmax, away_softmax
 
 
 def generate_game_results():
@@ -67,7 +69,9 @@ def generate_game_results():
                           "prob_home_low", 
                           "prob_home_high", 
                           "prob_away_low", 
-                          "prob_away_high", 
+                          "prob_away_high",
+                          "home_softmax",
+                          "away_softmax", 
                           "home_expected_score", 
                           "away_expected_score"])
     
@@ -84,7 +88,7 @@ def generate_game_results():
             outputPathHome = os.path.join(root, f"game_prob_{game_id}_home.txt")
             outputPathAway = os.path.join(root, f"game_prob_{game_id}_away.txt")
             # Predict the game result
-            winner, probHome, probAway, home_expected_score, away_expected_score = \
+            winner, probHome, probAway, home_expected_score, away_expected_score, home_softmax, away_softmax = \
                 extractGameResultSoftmax(outputPathHome, outputPathAway)
             print(f"Game ID: {game_id}, Winner: {winner}")
             writer.writerow([game_id,
@@ -93,6 +97,8 @@ def generate_game_results():
                             probHome[1],
                             probAway[0],
                             probAway[1],
+                            home_softmax,
+                            away_softmax,
                             home_expected_score,
                             away_expected_score])
 
