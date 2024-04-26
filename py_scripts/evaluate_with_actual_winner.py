@@ -23,17 +23,17 @@ def evaluate_correctness():
         reader = csv.reader(file)
         next(reader)
         for row in reader:
-            (game_id, our_winner, prob_home_low, prob_home_high, prob_away_low,
+            (game_id, our_winner_softmax, prob_home_low, prob_home_high, prob_away_low,
              prob_away_high, home_expected_score, away_expected_score) = row
-            our_winner = "home" if home_expected_score > away_expected_score else "away"
-            our_results[game_id] = (our_winner, prob_home_low, prob_home_high, prob_away_low,
+            our_winner_accumulation = "home" if home_expected_score > away_expected_score else "away"
+            our_results[game_id] = (our_winner_softmax, our_winner_accumulation, prob_home_low, prob_home_high, prob_away_low,
                                      prob_away_high, home_expected_score, away_expected_score)
 
     # Join the two results by game_id and print output
     joined_results = []
     cols = ["game_id", "actual_winner",
             "actual_home_points", "actual_away_points",
-            "our_winner",
+            "our_winner_softmax", "our_winner_accumulation",
             "prob_home_low", "prob_home_high",
             "prob_away_low", "prob_away_high",
             "home_expected_score", "away_expected_score"]
@@ -47,7 +47,15 @@ def evaluate_correctness():
         if real_results[game_id][0] == our_results[game_id][0]:
             correct_predictions += 1
     accuracy = correct_predictions / len(our_results)
-    print(f"Accuracy: {accuracy}")
+    print(f"Accuracy(softmax): {accuracy}")
+
+    # Calulate the accuracy of our predictions using the accumulation method
+    correct_predictions = 0
+    for game_id in our_results:
+        if real_results[game_id][0] == our_results[game_id][1]:
+            correct_predictions += 1
+    accuracy = correct_predictions / len(our_results)
+    print(f"Accuracy(accumulation): {accuracy}")
     return
 
 if __name__ == "__main__":
