@@ -1,3 +1,6 @@
+"""
+Generate the game results from the verification probability result files.
+"""
 import re
 import os
 import math
