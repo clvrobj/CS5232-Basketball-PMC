@@ -24,10 +24,10 @@ def evaluate_correctness():
         next(reader)
         for row in reader:
             (game_id, our_winner_softmax, prob_home_low, prob_home_high, prob_away_low,
-             prob_away_high, home_expected_score, away_expected_score) = row
+             prob_away_high, home_softmax, away_softmax, home_expected_score, away_expected_score) = row
             our_winner_accumulation = "home" if home_expected_score > away_expected_score else "away"
             our_results[game_id] = (our_winner_softmax, our_winner_accumulation, prob_home_low, prob_home_high, prob_away_low,
-                                     prob_away_high, home_expected_score, away_expected_score)
+                                     prob_away_high, home_softmax, away_softmax, home_expected_score, away_expected_score)
 
     # Join the two results by game_id and print output
     joined_results = []
