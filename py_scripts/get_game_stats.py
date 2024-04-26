@@ -26,7 +26,7 @@ def get_team_players(game_stats, team_type):
     return team
 
 
-def get_player_ids(game_type, team, team_type):
+def get_player_ids(game_season, game_type, game_overview, team, team_type):
     if team_type == "Away":
         team_id = game_overview["AwayTeamId"]
     elif team_type == "Home":
@@ -98,7 +98,7 @@ def print_table(team):
     col_names = ["Name", "Minutes", "ID"] + key_all_stats
     print(tabulate(team, headers=col_names, tablefmt="grid"))
 
-def get_game_stats(game_id=None):
+def fetch_game_stats(game_id=None):
     if game_id is None:
         # Year range
         start_year = 2010
@@ -175,10 +175,10 @@ def export_origin_game_results(game_overview):
                                 game_overview["AwayPoints"]])
 
 # Export the lineup players key stats
-def export_lineup(game_season, game_type, game_stats, is_home):
+def export_lineup(game_season, game_type, game_overview, game_stats, is_home):
     team_type = "Home" if is_home else "Away"
     team_stats = get_team_players(game_stats, team_type)
-    get_player_ids(game_type, team_stats, team_type)
+    get_player_ids(game_season, game_type, game_overview, team_stats, team_type)
     get_team_stats(team_stats, game_season, game_type)
     col_names = ["Name", "Minutes", "ID"] + key_all_stats
     team_stats = [{col_names[i]: player[i] for i in range(len(col_names))} for player in team_stats]
@@ -269,16 +269,19 @@ def generate_pcsp_lineup(team_type, game_overview):
         file.write("\n")
         file.write("\n".join(template))
 
-if __name__ == "__main__":
-    game_season, game_type, game_overview, game_stats = get_game_stats()
+def get_game_data():
+    game_season, game_type, game_overview, game_stats = fetch_game_stats()
 
     # Export the game result to the CSV file
     export_origin_game_results(game_overview)
     
     # Export the lineup stats
-    export_lineup(game_season, game_type, game_stats, is_home=True)
-    export_lineup(game_season, game_type, game_stats, is_home=False)
+    export_lineup(game_season, game_type, game_overview, game_stats, is_home=True)
+    export_lineup(game_season, game_type, game_overview, game_stats, is_home=False)
     
     # Generate the PCSP lineup stats
     generate_pcsp_lineup("Home", game_overview)
     generate_pcsp_lineup("Away", game_overview)
+
+if __name__ == "__main__":
+    get_game_data()
