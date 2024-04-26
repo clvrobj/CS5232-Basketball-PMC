@@ -9,8 +9,6 @@
 * You can also run the scripts individually by executing the scripts in the `py_scripts` folder.
 
 ## Components
-
-
 * The `main.py` script will execute the following scripts in the following order:
     * `get_game_stats.py`: This script will fetch the game data and generate PCSP files.
     * `run_game.py`: This script will run the PCSP module to generate the game probability result.

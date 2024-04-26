@@ -14,7 +14,7 @@ def evaluate_correctness():
         next(reader)
         for row in reader:
             game_id, _, _, _, _, actual_home_points, actual_away_points = row
-            actual_winner = "home" if actual_home_points > actual_away_points else "away"
+            actual_winner = "home" if int(actual_home_points) > int(actual_away_points) else "away"
             real_results[game_id] = actual_winner, actual_home_points, actual_away_points
 
     our_results_path = "output/game_winner_summary.csv"
@@ -25,6 +25,7 @@ def evaluate_correctness():
         for row in reader:
             (game_id, our_winner, prob_home_low, prob_home_high, prob_away_low,
              prob_away_high, home_expected_score, away_expected_score) = row
+            our_winner = "home" if home_expected_score > away_expected_score else "away"
             our_results[game_id] = (our_winner, prob_home_low, prob_home_high, prob_away_low,
                                      prob_away_high, home_expected_score, away_expected_score)
 
